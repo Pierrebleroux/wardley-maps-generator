@@ -11,8 +11,7 @@
 {{ $result_div := .Scratch.Get "result_div" }}
 {{ $height     := .Scratch.Get "height"     }}
 {{ $show       := .Scratch.Get "show"   }}
-
-<h1>normal</h1>
+<h1>raw</h1>
 {{ if eq $show "graph-only"}}
 <div style="display:none">
     {{ partial "repl/card-code.html" . }}
@@ -30,10 +29,9 @@
     </div>
     <div class="row">
         <div class="col-12">
-            {{ partial "visjs/wardley-map.html" . }}
-            <script type="text/javascript" src="/js/wardley-visjs.js"></script>
+            {{ partial "visjs/wardley-map-raw.html" . }}
+
         </div>
     </div>
 {{ end }}
 {{ partial "repl/js-codemirror.html" . }}
-

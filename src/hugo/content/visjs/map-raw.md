@@ -1,13 +1,11 @@
 ---
-title     : Maps test
+title     : Maps - raw input
 menu      : main
 ---
 
 Test Wardley Maps generation
 
-{{< map-render mode="JavaScript" height="300" >}}
-
-
+{{< map-render-raw mode="JavaScript" height="300" >}}
 nodes = new vis.DataSet([
     {id: 0, x: 500 , y:-300  , label: 'Anchor' , fixed: true        , shape: 'box'},
     {id: 1, x: 100  ,y:-100  , label: 'Node 1' , fixed: { x: true } , shape: 'box'},
@@ -32,4 +30,4 @@ split_value = 5.4
 
  render({})
 
-{{</ map-render >}}
+{{</ map-render-raw >}}
