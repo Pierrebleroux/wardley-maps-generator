@@ -1,0 +1,117 @@
+<script src="/js/visjs/vis.js" > </script>
+
+{{ $result_div     := .Scratch.Get "result_div"          }}
+
+{{ $height         := .Scratch.Get "height"              }}
+
+<style>
+    #{{$result_div}} {
+        height : {{ safeJS $height }}px;
+    }
+
+    #card-graph .card-header {   padding:0px;  padding-left:5px   }
+    #card-graph .card-body   {   padding:0px;                     }
+
+</style>
+
+<div class="card border-primary " id="card-graph">
+    <div class="card-header">
+        Output
+    </div>
+    <div class="card-body">
+        <div id="{{$result_div}}"></div>
+    </div>
+    <div class="card-header">
+      <div class="row" >
+          <div class="col-3">
+              Genesis
+          </div>
+          <div class="col-3">
+              Custom
+          </div>
+          <div class="col-3">
+              Product
+          </div>
+          <div class="col-3">
+              Commodity
+          </div>
+      </div>
+    </div>
+</div>
+
+
+
+<script>
+    var container = document.getElementById('{{$result_div}}');
+    var data = {
+        nodes: new vis.DataSet({}),
+        edges: new vis.DataSet({})
+    };
+
+    var options = {}
+
+    var network = new vis.Network(container, data, options);
+
+    function graph(nodes, edges, options)
+    {
+        var data = {
+            nodes: new vis.DataSet(nodes),
+            edges: new vis.DataSet(edges)
+        };
+        options = options ? options : {}
+        network.setData(data, options)
+    }
+
+    function render() {
+        network.setData({ nodes:nodes , edges: edges}, options)
+    }
+    function options_for_map()
+    {
+        width = 800;
+        height = 800;
+        return {
+                    //width: width + 'px',
+                    //height: height + 'px',
+
+                    nodes: {
+                        shape: 'dot'
+                    },
+                    edges: {
+                        arrows: { to: {enabled: true}},
+                        smooth: { enabled: false}
+                    },
+                    physics: false,
+                    interaction: {
+                        dragNodes: false,// do not allow dragging nodes
+                        zoomView: false, // do not allow zooming
+                        dragView: false  // do not allow dragging
+                    }
+              };
+    }
+
+    network.on("afterDrawing", function (ctx) {
+        window.ctx = ctx
+        split = window.split_value  ? window.split_value : 6 //3.7
+        x = ctx.canvas.width /  split
+        ctx.strokeStyle = '#294475';
+        ctx.beginPath();
+        ctx.moveTo(x,-800);
+        ctx.lineTo(x,800);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#294475';
+        ctx.beginPath();
+        ctx.moveTo(x*2,-800);
+        ctx.lineTo(x*2,800);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#294475';
+        ctx.beginPath();
+        ctx.moveTo(x*3,-800);
+        ctx.lineTo(x*3,800);
+        ctx.stroke();
+
+
+
+    });
+</script>

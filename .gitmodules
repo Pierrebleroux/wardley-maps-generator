@@ -1,0 +1,6 @@
+[submodule "libs/pbx-gs-python-utils"]
+	path = libs/pbx-gs-python-utils
+	url = git@github.com:pbx-gs/pbx-gs-python-utils.git
+[submodule "src/hugo/themes/coreui-hugo"]
+	path = src/hugo/themes/coreui-hugo
+	url = git@github.com:pbx-gs/coreui-hugo.git
