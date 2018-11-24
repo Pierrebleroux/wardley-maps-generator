@@ -40,8 +40,12 @@ class Test_VisJs(TestCase):
         #await self.browser.screenshot(url)
 
         #await self.browser.open(self.url)
-        nodes = await self.browser.js_eval("api_visjs")
-        Dev.pprint(nodes['answer'] == 42)
+        await self.browser.js_eval("api_visjs.move_to(0,0)")
+        await self.browser.js_eval("api_visjs.draw_circle(0   ,0   ,10)")
+        await self.browser.js_eval("api_visjs.draw_circle(700 ,500 ,10)")
+        await self.browser.js_eval("api_visjs.draw_circle(0   ,500 ,1 )")
+
+        #Dev.pprint(nodes['answer'] == 42)
 
         # #await self.browser.js_eval("network.body.data.nodes.add({'id': 'aaaa','label':'bbbb'})")
         # await self.browser.js_eval("network.body.data.edges.add({'from': 'aaaa','to':'1'})")
