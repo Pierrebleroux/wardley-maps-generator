@@ -73,23 +73,37 @@ class Api_VisJs
 
     @.add_edge(edge)
 
-  add_component: (label , row)->
-    node_id      = "node_#{label}"
-    node_x       = 100
-    node_y       = 200
-    node_color   = '#F9F0F0'
-    edge_id_1    = "edge_1_#{label}"
-    edge_id_2    = "edge_2_#{label}"
-    edge_color   = { color: '#C0C0C0'}
-    edge_dashes  = true
-    edge_hidden  = false
-    edge_physics = false
-    anchor_top     = "anchor_#{row || 1}_0"
-    anchor_bottom  = "anchor_#{row || 1}_1"
+  add_component: (label , row = 1, col = 2 )->
+    #if (row)
+    #  x
+    node_id       = "node_#{label}"
+    node_label    = "#{label} (#{row}  #{col})"
+    node_x        = 100
+    node_y        = 200
+    node_color    = '#F9F0F0'
+    node_mass     = 1
+    edge_1_label  = ''
+    edge_2_label  = ''
+    edge_1_id     = "edge_1_#{label}"
+    edge_2_id     = "edge_2_#{label}"
+    edge_color    = { color: '#C0C0C0'}
+    edge_dashes   = true
+    edge_hidden   = true
+    edge_physics  = false
+    anchor_top    = "anchor_#{row}_0"
+    anchor_bottom = "anchor_#{row}_1"
+    length_split  = @.canvas_height() - 200
 
-    api_visjs.add_node( { id: node_id  , label: label          , shape: 'box'   , color: node_color , x: node_x   , y: node_y })
-    api_visjs.add_edge( { id: edge_id_1, from : anchor_top     , to   : node_id , color: edge_color , hidden: edge_hidden , dashes: edge_dashes})
-    api_visjs.add_edge( { id: edge_id_2, from : anchor_bottom  , to   : node_id , color: edge_color , hidden: edge_hidden , dashes: edge_dashes})
+    edge_1_length = length_split * (   col) / 8
+    edge_2_length = length_split * (8- col) / 8
+
+    #edge_1_label = edge_1_length.toString()
+    #edge_2_label = edge_2_length.toString()
+
+    api_visjs.add_node( { id: node_id  , label: node_label  , shape: 'box'          , color: node_color , mass  : node_mass , x     : node_x        , y     : node_y      })
+    api_visjs.add_edge( { id: edge_1_id, label: edge_1_label, from : anchor_top     , to   : node_id    , color: edge_color , length: edge_1_length , hidden: edge_hidden , dashes: edge_dashes})
+    api_visjs.add_edge( { id: edge_2_id, label: edge_2_label, from : anchor_bottom  , to   : node_id    , color: edge_color , length: edge_2_length , hidden: edge_hidden , dashes: edge_dashes})
+
     #api_visjs.add_edge( { from: 'a', to: '1', smooth:false , length:200   , _hidden: true, dashes: true, color: {color: '#F0C0C0', _inherit : false} } )
     #api_visjs.add_edge( { from: '3', to: 'a', smooth:false , length:100   , _hidden: true, dashes: true, color: {color: '#F0C0C0'} })
 
@@ -120,7 +134,7 @@ class Api_VisJs
                 x      : node_x
                 y      : node_y
                 font   : node_font
-                mass   : 0.1            # repulsion of the the anchor nodes
+                #mass   : 0.1            # repulsion of the the anchor nodes
         api_visjs.add_node node
 
   after_drawing: ()=>
@@ -182,7 +196,7 @@ class Api_VisJs
       {
         physics: {
                     barnesHut: {
-                        gravitationalConstant: -26
+                        gravitationalConstant: -2000        # (-2000
                         centralGravity       :  0.00        # (0.01) no central gravity since we don't need that
                         springLength         : 50           # (100) this value is also set by the anchor edges
                         springConstant       :  0.15        # (0.08) this is how hard the spring is
@@ -192,7 +206,7 @@ class Api_VisJs
                     maxVelocity : 10,                       # (50) keep this low so that the nodes don'y move too far from each other
                     minVelocity : 1,                        # (0.1)
                     solver      : 'barnesHut'               #       other good option is forceAtlas2Based',
-                    timestep    : 2.35,                     # (0.5) this value can be used to slow down the animation (for ex 0.015)
+                    timestep    : 1.35,                     # (0.5) this value can be used to slow down the animation (for ex 0.015)
 #                    stabilization: {
 #                        enabled       : true,
 #                        iterations    : 2000,
