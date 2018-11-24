@@ -35,15 +35,16 @@ class Test_VisJs(TestCase):
 
     @sync
     async def test_api_visjs(self):
-        #url = 'http://localhost:1313/visjs/just-visjs'
+        url = 'http://localhost:1313/visjs/just-visjs'
         #await page.setViewport({ "width": 10, "height": 200, "isMobile": True })
+        await self.browser.open(url)
         #await self.browser.screenshot(url)
 
         #await self.browser.open(self.url)
-        await self.browser.js_eval("api_visjs.move_to(0,0)")
-        await self.browser.js_eval("api_visjs.draw_circle(0   ,0   ,10)")
-        await self.browser.js_eval("api_visjs.draw_circle(700 ,500 ,10)")
-        await self.browser.js_eval("api_visjs.draw_circle(0   ,500 ,1 )")
+        #await self.browser.js_eval("api_visjs.move_to(0,0)")
+        #await self.browser.js_eval("api_visjs.draw_circle(0   ,0   ,10)")
+        #await self.browser.js_eval("api_visjs.draw_circle(700 ,500 ,10)")
+        #await self.browser.js_eval("api_visjs.draw_circle(0   ,500 ,1 )")
 
         #Dev.pprint(nodes['answer'] == 42)
 
