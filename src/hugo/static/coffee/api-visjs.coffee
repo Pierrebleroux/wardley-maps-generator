@@ -1,3 +1,19 @@
+class Canvas_Draw
+  constructor: (context) ->
+    @.ctx = context
+
+  circle: (x, y, r)=>
+    @.ctx.strokeStyle = '#294475';
+    @.ctx.lineWidth   = 40;
+    @.ctx.fillStyle   = '#A6D5F7';
+    @.ctx.circle(x,y,r)
+    @.ctx.fill();
+    @.ctx.stroke();
+
+  rectangle: (from_x, from_y, to_x, to_y )=>
+    @.ctx.rect(from_x, from_y, to_x, to_y);
+    @.ctx.stroke();
+
 
 class Api_VisJs
   constructor: () ->
@@ -8,7 +24,8 @@ class Api_VisJs
   canvas_border : (        ) -> @._canvas_border
   canvas_height : (        ) -> network.canvas.frame.clientHeight
   canvas_width :  (        ) -> network.canvas.frame.clientWidth
-  context       : (        ) -> network.canvas.getContext()
+  draw          : (        ) => new Canvas_Draw(@.context())
+  context       : (        ) => network.canvas.getContext()
   edges         : (        ) -> return network.body.data.edges._data
   nodes         : (        ) -> return network.body.data.nodes._data
   node_set_x_y  : (id, x, y) -> network.body.data.nodes.update({'id':id, x:x , y:y})
@@ -54,7 +71,6 @@ class Api_VisJs
              color  : {color : '#4444FF'}
              length : length || 150
 
-    console.log(edge)
     @.add_edge(edge)
 
   add_component: (label , row)->
@@ -79,8 +95,6 @@ class Api_VisJs
 
 
   add_top_and_bottom_anchor_nodes: (count) ->
-    console.log ('in add_top_and_bottom_anchor_nodes for #{@.canvas_width()} x #{@.canvas_height() })')
-
     split_x        = (@.canvas_width() - @.canvas_border() * 2) / count
     split_x_offset = split_x / 2
     split_y        = @.canvas_height() - @.canvas_border() * 2
@@ -106,22 +120,12 @@ class Api_VisJs
                 x      : node_x
                 y      : node_y
                 font   : node_font
+                mass   : 0.1            # repulsion of the the anchor nodes
         api_visjs.add_node node
-    #api_visjs.add_node( {id: '1', label: '1', shape: 'box'  , fixed: true , x:100, y:0 , })
-    #api_visjs.add_node( {id: '2', label: '2', shape: 'box'  , fixed: true , x:300, y:0 })
-    #api_visjs.add_node( {id: '3', label: '3', shape: 'box'  , fixed: true , x:100, y:400 })
-    #api_visjs.add_node( {id: '4', label: '4', shape: 'box'  , fixed: true , x:300, y:400 })
 
   after_drawing: ()=>
       @.move_to(0,0, - @.canvas_width() / 2 + @.canvas_border(), - @.canvas_height() / 2 + @.canvas_border() , 1.0)
-      @.draw_rectangle(0 ,0 , @.canvas_width() - @.canvas_border() * 2 , @.canvas_height() - @.canvas_border() * 2)
-
-      #@.node_set_x_y('1', 0,0)
-      #@.node_set_x_y('2', 100,0)
-      #@.draw_circle(0   ,0   ,2)
-      #@.draw_circle(0 ,400   ,5)
-      #@.draw_circle(600   ,0   ,10)
-      #@.draw_circle(600   ,400   ,15)
+      @.draw().rectangle(0 ,0 , @.canvas_width() - @.canvas_border() * 2 , @.canvas_height() - @.canvas_border() * 2)
 
   set_up_on_after_drawing: ()=>
     network.on "afterDrawing",  (ctx) =>
@@ -139,20 +143,20 @@ class Api_VisJs
     #api_visjs.add_node( {id: '4', label: '4', shape: 'box'  , fixed: true , x:300, y:400 })
 
 
-    @.add_component('kettle' , 1)
-    @.add_component('user'   , 3)
-    @.add_component('tea'    , 1)
-    @.add_component('water'  , 2)
-
-    @.set_edge_value('edge_1_kettle', 'length',300)
-    @.set_edge_value('edge_2_kettle', 'length',450)
-
-    @.set_edge_value('edge_1_user'  , 'length', 10)
-    @.set_edge_value('edge_2_user'  , 'length', 700)
-
-    @.add_connection('user'         , 'kettle'  )
-    @.add_connection('kettle'       , 'water')
-    @.add_connection('kettle'       , 'tea'  )
+#    @.add_component('kettle' , 1)
+#    @.add_component('user'   , 3)
+#    @.add_component('tea'    , 1)
+#    @.add_component('water'  , 2)
+#
+#    @.set_edge_value('edge_1_kettle', 'length',300)
+#    @.set_edge_value('edge_2_kettle', 'length',450)
+#
+#    @.set_edge_value('edge_1_user'  , 'length', 10)
+#    @.set_edge_value('edge_2_user'  , 'length', 700)
+#
+#    @.add_connection('user'         , 'kettle'  )
+#    @.add_connection('kettle'       , 'water')
+#    @.add_connection('kettle'       , 'tea'  )
 
 
 
@@ -173,34 +177,29 @@ class Api_VisJs
 #    api_visjs.add_edge( { from: 'b', to: 'a', smooth:false , arrows: 'to' })
 #    api_visjs.add_edge( { from: 'c', to: 'd', smooth:false , arrows: 'to' })
 
-
-
-    console.log('------ here----')
-
   set_Options:()=>
     options =
       {
-        #nodes: { physics: false }
-        #edges: { physics: false }
         physics: {
-                    forceAtlas2Based: {
-                        gravitationalConstant: -26,
-                        centralGravity: 0.000,          # no central gravity since we don't need that
-                        springLength: 100,
-                        springConstant: 0.18
+                    barnesHut: {
+                        gravitationalConstant: -26
+                        centralGravity       :  0.00        # (0.01) no central gravity since we don't need that
+                        springLength         : 50           # (100) this value is also set by the anchor edges
+                        springConstant       :  0.15        # (0.08) this is how hard the spring is
+                        damping              :  0.4         # (0.4
+                        avoidOverlap         :  0
                     },
-                    maxVelocity: 10,                      # keep this low so that the nodes don'y move too far from each other
-                    minVelocity: 1,
-                    solver: 'forceAtlas2Based',
-                    timestep: 2.35,                       # this value can be used to slow down the animation (for ex 0.015)
-                    stabilization: {
-                        enabled:true,
-                        iterations:2000,
-                        updateInterval:100
-                    }
+                    maxVelocity : 10,                       # (50) keep this low so that the nodes don'y move too far from each other
+                    minVelocity : 1,                        # (0.1)
+                    solver      : 'barnesHut'               #       other good option is forceAtlas2Based',
+                    timestep    : 2.35,                     # (0.5) this value can be used to slow down the animation (for ex 0.015)
+#                    stabilization: {
+#                        enabled       : true,
+#                        iterations    : 2000,
+#                        updateInterval: 100
+#                    }
 
         }
-      #physics: true,
         interaction: {
             dragNodes: true
             zoomView : false
@@ -210,12 +209,12 @@ class Api_VisJs
     network.setOptions(options)
 
 
-
+window.Api_VisJs = Api_VisJs
 
 window.api_visjs = new Api_VisJs()
-network.on 'stabilizationProgress',  (data)->
-      console.log('stabilizationProgress',data)
-      network.stopSimulation()
+#network.on 'stabilizationProgress',  (data)->
+#      console.log('stabilizationProgress',data)
+#      network.stopSimulation()
 
 
 
