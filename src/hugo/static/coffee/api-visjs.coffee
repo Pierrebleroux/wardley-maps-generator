@@ -107,7 +107,7 @@ class Api_VisJs
     @.hide_anchor_edges = true
     @.connection_arrows = '' #'to'
 
-    @.rows              = ["Genesis","Custom","Product (+ Rental)","Commodity (+ Utility)"]
+    @.rows              = ["Genesis","Custom Built","Product (+ rental)","Commodity (+ utility)"]
     @.row_count         = @.rows.length
 
   add_node       : (node    ) -> network.body.data.nodes.add(node)
@@ -137,7 +137,8 @@ class Api_VisJs
 
     network.moveTo(options)
 
-  set_edge_value: (id, key, value) => network.body.data.edges.update({ id: id, "#{key}": value })
+  set_node_value: (id, key, value) => network.body.data.nodes.update({'id':id, "#{key}": value }) ; @
+  set_edge_value: (id, key, value) => network.body.data.edges.update({ id: id, "#{key}": value }) ; @
 
 
   #draw helpers (move to separate class)
@@ -253,14 +254,15 @@ class Api_VisJs
     # add the bottom legend
     x_delta = [0,-60, -80, -60,0]
     x_start = width / @.row_count
-    @.draw().text_align("left").font('Italic 13','Courier')
+    @.draw().text_align("left").font('Italic 13')
     for i in [0..(@.row_count - 1)]
       x = i *  x_start  + x_delta[i]
       @.draw().text(@.rows[i], x  + 10 , height + 20)
       if i > 0
         @.draw().line_dash(2).line(x, 20 ,x ,height + 20).line_dash(0)
 
-
+    @.draw().font('Bold 13').text_align("left").text("Uncharted"     , 10         ,20)
+    @.draw().font('Bold 13').text_align("right").text("Industrialised", width - 10,20)
     # end of Maps static ui
     @.on_AfterDrawing?()      # callback event to allow the script to add more elements to the canvas (that will be redrawn every time)
 
@@ -326,8 +328,12 @@ class Api_VisJs
   set_Options:()=>
     options =
       {
+        nodes  : {
+                    font: { face : 'Corier' , vadjust: -50}
+                 }
+
         layout : {
-                  randomSeed: 0                             # set this value to remove random placement of nodes (shouldn't have a big impact since most nodes should be placed in a location that is already good for them)
+                    randomSeed: 0                             # set this value to remove random placement of nodes (shouldn't have a big impact since most nodes should be placed in a location that is already good for them)
                  }
         physics: {
                     barnesHut: {

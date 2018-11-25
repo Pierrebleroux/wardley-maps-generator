@@ -4,31 +4,44 @@ class Maps extends window.Api_VisJs
 
   create_map_for_tea: ()->
 
-    @.add_component('Business'   , 3, 1)
-    @.add_component('Public'     , 3, 1)
-    @.add_component('Cup of Tea' , 3, 2)
-    @.add_component('Cup'        , 4, 3)
-    @.add_component('Tea'        , 4, 4)
-    @.add_component('Hot Water'  , 4, 5)
-    @.add_component('Water'      , 4, 6)
-    @.add_component('Kettle'     , 1, 6)
-    @.add_component('Power'      , 4, 7)
+    @.add_component('BUSINESS'   , 3, 1)
+    @.add_component('PUBLIC'     , 3, 1)
+    @.add_component('CUP OF TEA' , 3, 2)
+    @.add_component('CUP'        , 4, 3)
+    @.add_component('TEA'        , 4, 4)
+    @.add_component('HOT WATER'  , 4, 5)
+    @.add_component('WATER'      , 4, 6)
+    @.add_component('KETTLE'     , 1, 6)
+    @.add_component('POWER'      , 4, 7)
 
-    @.add_connection('Business'   , 'Cup of Tea')
-    @.add_connection('Public'     , 'Cup of Tea')
-    @.add_connection('Cup of Tea' , 'Cup'       )
-    @.add_connection('Cup of Tea' , 'Tea'       )
-    @.add_connection('Cup of Tea' , 'Hot Water' )
-    @.add_connection('Hot Water'  , 'Water'     )
-    @.add_connection('Hot Water'  , 'Kettle'    )
-    @.add_connection('Kettle'     , 'Power'     )
+    @.add_connection('BUSINESS'   , 'CUP OF TEA')
+    @.add_connection('PUBLIC'     , 'CUP OF TEA')
+    @.add_connection('CUP OF TEA' , 'CUP'       )
+    @.add_connection('CUP OF TEA' , 'TEA'       )
+    @.add_connection('CUP OF TEA' , 'HOT WATER' )
+    @.add_connection('HOT WATER'  , 'WATER'     )
+    @.add_connection('HOT WATER'  , 'KETTLE'    )
+    @.add_connection('KETTLE'     , 'POWER'     )
 
-    @.node_fixed_x_y('Business', 350,50)
-    @.node_fixed_x_y('Public'  , 450,50)
+    # adjust text locations
+
+    @.set_node_value('CUP OF TEA', 'font',{ vadjust : -30 })
+    @.set_node_value('CUP OF TEA', 'label','CUP OF TEA                             ')
+    @.set_node_value('HOT WATER' , 'font',{ vadjust : -30 })
+    @.set_node_value('HOT WATER' , 'label','                            HOT WATER')
+    @.set_node_value('WATER'     , 'font',{ vadjust : -30 })
+    @.set_node_value('WATER'     , 'label','WATER                  ')
+    @.set_node_value('POWER'     , 'font',{ vadjust : -30 })
+    @.set_node_value('POWER'     , 'label','                       POWER')
+    @.set_node_value('KETTLE'    , 'label','KETTLE                  ')
+
+    # add red box and anchor reference
+    @.node_fixed_x_y('BUSINESS', 450,55)
+    @.node_fixed_x_y('PUBLIC'  , 540,55)
 
     @.on_AfterDrawing = ()=>
-      @.draw().color("darkred").box(300,30,200,70,20)
-      @.draw().font(20).text("Anchor", 190,70)
+      @.draw().color("darkred").box(370,15,250,70,20)
+      @.draw().font(35).text("ANCHOR", 350,55)
 
 
 
