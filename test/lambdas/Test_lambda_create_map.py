@@ -1,4 +1,4 @@
-
+import base64
 import subprocess
 from distutils.dir_util import copy_tree
 from unittest import TestCase
@@ -9,6 +9,7 @@ from syncer import sync
 from browser.API_Browser import API_Browser
 from utils.Dev import Dev
 from utils.Files import Files
+from utils.Show_Img import Show_Img
 from utils.aws.Lambdas import Lambdas
 
 
@@ -19,6 +20,7 @@ class Test_lambda_create_map(TestCase):
         self.folder_src_hugo    = Files.path_combine(__file__, '../../../src/hugo')
 
     def zip_update_invoke(self):
+        self.copy_html_files()
         _lambda = Lambdas('create_map', 'create_map.run')
         copy_tree(_lambda.source         , self.src_tmp)
         copy_tree(self.folder_src_lambdas, self.src_tmp)
@@ -39,13 +41,17 @@ class Test_lambda_create_map(TestCase):
         Files.copy(cs_map_1     , self.src_tmp + '/html/coffee/map-1.coffee')
 
     @sync
-
     async def take_screenshot(self):
         (_,_,_,browser) = await API_Browser().open('http://localhost:1234/map/simple')
         return await browser.screenshot()
 
     def test_invoke(self):
-        Dev.pprint(self.zip_update_invoke())
+        result = self.zip_update_invoke()
+        #Show_Img.from_png_string(result['base64_data'])
+        pdf_data = result['base64_data']
+        # Dev.pprint(len(pdf_data))
+        with open('./lambda-result.pdf', "wb") as fh:
+            fh.write(base64.decodebytes(pdf_data.encode()))
 
 
     def test_create_and_invoke(self):
