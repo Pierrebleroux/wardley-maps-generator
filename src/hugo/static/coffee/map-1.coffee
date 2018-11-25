@@ -2,9 +2,9 @@
 
 class Maps extends window.Api_VisJs
   create_map_1: ()->
-    @.add_component('user'       , 2, 0)
+    @.add_component('user  aaa'       )
     @.add_component('kettle'     , 3 ,1)
-    @.add_component('tea'        , 1, 3)
+    @.add_component('tea'        , 1, 0)
     @.add_component('electricity', 1, 4)
     @.add_component('water'      , 1, 5)
     @.add_component('A'          , 2, 6)
@@ -22,4 +22,4 @@ class Maps extends window.Api_VisJs
     #@.add_connection('kettle'       , 'water'   )
     #@.add_connection('kettle'       , 'tea'     , 300)
 
-new Maps().create_map_1()
+new Maps().setup().create_map_1()

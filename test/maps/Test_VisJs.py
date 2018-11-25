@@ -38,7 +38,7 @@ class Test_VisJs(TestCase):
         url = 'http://localhost:1313/visjs/just-visjs'
         #await page.setViewport({ "width": 10, "height": 200, "isMobile": True })
         await self.browser.open(url)
-        await self.browser.sleep(4000)
+        #await self.browser.sleep(4000)
         await self.browser.screenshot(url)
 
         #await self.browser.open(self.url)

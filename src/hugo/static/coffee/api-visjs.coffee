@@ -19,17 +19,19 @@ class Api_VisJs
   constructor: () ->
     @._canvas_border = 50
 
-  add_node      : (node    ) -> network.body.data.nodes.add(node)
-  add_edge      : (edge    ) -> network.body.data.edges.add(edge)
-  canvas_border : (        ) -> @._canvas_border
-  canvas_height : (        ) -> network.canvas.frame.clientHeight
-  canvas_width :  (        ) -> network.canvas.frame.clientWidth
-  draw          : (        ) => new Canvas_Draw(@.context())
-  context       : (        ) => network.canvas.getContext()
-  edges         : (        ) -> return network.body.data.edges._data
-  nodes         : (        ) -> return network.body.data.nodes._data
-  node_set_x_y  : (id, x, y) -> network.body.data.nodes.update({'id':id, x:x , y:y})
-  remove_node   : (id      ) -> network.body.data.nodes.remove(id)
+  add_node       : (node    ) -> network.body.data.nodes.add(node)
+  add_edge       : (edge    ) -> network.body.data.edges.add(edge)
+  canvas_border  : (        ) -> @._canvas_border
+  canvas_height  : (        ) -> network.canvas.frame.clientHeight
+  canvas_width   :  (        ) -> network.canvas.frame.clientWidth
+  draw           : (        ) => new Canvas_Draw(@.context())
+  context        : (        ) => network.canvas.getContext()
+  edges          : (        ) -> return network.body.data.edges._data
+  nodes          : (        ) -> return network.body.data.nodes._data
+  node_set_x_y   : (id, x, y) -> network.body.data.nodes.update({'id':id, x:x , y:y})
+  remove_node    : (id      ) -> network.body.data.nodes.remove(id)
+  physics_off    : (        ) -> network.setOptions({ physics: off })
+  physics_options: (        ) -> network.physics.options
 
   move_to: (position_x, position_y, offset_x, offset_y, scale ) =>
     options =
@@ -73,12 +75,13 @@ class Api_VisJs
 
     @.add_edge(edge)
 
-  add_component: (label , row = 1, col = 2 )->
+  add_component: (label , row = 1, col = 1 )->
     #if (row)
     #  x
+
     node_id       = "node_#{label}"
     node_label    = "#{label} (#{row}  #{col})"
-    node_x        = 100
+    node_x        = 100                            # adjust this so that there is less movement
     node_y        = 200
     node_color    = '#F9F0F0'
     node_mass     = 1
@@ -88,8 +91,7 @@ class Api_VisJs
     edge_2_id     = "edge_2_#{label}"
     edge_color    = { color: '#C0C0C0'}
     edge_dashes   = true
-    edge_hidden   = true
-    edge_physics  = false
+    edge_hidden   = false
     anchor_top    = "anchor_#{row}_0"
     anchor_bottom = "anchor_#{row}_1"
     length_split  = @.canvas_height() - 200
@@ -137,20 +139,24 @@ class Api_VisJs
                 #mass   : 0.1            # repulsion of the the anchor nodes
         api_visjs.add_node node
 
-  after_drawing: ()=>
-      @.move_to(0,0, - @.canvas_width() / 2 + @.canvas_border(), - @.canvas_height() / 2 + @.canvas_border() , 1.0)
+  draw_static_elements: ()=>
       @.draw().rectangle(0 ,0 , @.canvas_width() - @.canvas_border() * 2 , @.canvas_height() - @.canvas_border() * 2)
+      @.draw().circle(100,100,30)
 
-  set_up_on_after_drawing: ()=>
-    network.on "afterDrawing",  (ctx) =>
-      @.after_drawing()
-      #@.move_to(0,0)
-      #@.draw_circle(0   ,0   ,10)
-      #@.draw_circle(100 ,100   ,10)
-      #@.draw_circle(0   ,100   ,10)
+  move_canvas: ()=>
+    @.move_to(0,0, - @.canvas_width() / 2 + @.canvas_border(), - @.canvas_height() / 2 + @.canvas_border() , 1.0)
 
-  add_data: ()->
+  setup: ()->
+    @.move_canvas()
+    @.set_Options()
     @.add_top_and_bottom_anchor_nodes(4)
+    network.on "afterDrawing",  () => @.draw_static_elements() # setup hook to add static elements to UI after each drawing event
+    #network.on 'startStabilizing', (data)=>
+    #network.on 'stabilized', (data)=>
+
+
+    @
+
     #api_visjs.add_node( {id: '1', label: '1', shape: 'box'  , fixed: true , x:100, y:0 , _mass: 5})
     #api_visjs.add_node( {id: '2', label: '2', shape: 'box'  , fixed: true , x:300, y:0 })
     #api_visjs.add_node( {id: '3', label: '3', shape: 'box'  , fixed: true , x:100, y:400 })
@@ -232,7 +238,5 @@ window.api_visjs = new Api_VisJs()
 
 
 
-api_visjs.set_Options()
-api_visjs.set_up_on_after_drawing()
-api_visjs.add_data()
-#network.stopSimulation()
+
+
