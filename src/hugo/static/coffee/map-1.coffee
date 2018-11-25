@@ -2,7 +2,7 @@
 
 class Maps extends window.Api_VisJs
 
-  create_map_for_tea: ()->
+  create_map_for_tea_original: ()->
 
     @.add_component('BUSINESS'   , 3, 1)
     @.add_component('PUBLIC'     , 3, 1)
@@ -44,12 +44,6 @@ class Maps extends window.Api_VisJs
       @.draw().font(35).text("ANCHOR", 350,55)
 
 
-
-
-
-
-
-
   create_map_test_nodes: ()->
     @.add_component('A (1,1)' , 1 ,1)
     @.add_component('B (1,2)' , 4, 8)
@@ -84,9 +78,10 @@ class Maps extends window.Api_VisJs
 
 
 
-new Maps().setup()
+#new Maps().setup()
           #.physics_off()
-          .create_map_for_tea()
           #.create_map_test_nodes()
+          #.create_map_for_tea_original()
 
-#new Maps().setup().create_map_1()
+
+new Maps().setup().create_map_for_tea_original()
