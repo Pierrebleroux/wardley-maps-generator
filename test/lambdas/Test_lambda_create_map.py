@@ -1,8 +1,6 @@
-import os
+
 import subprocess
-import threading
 from distutils.dir_util import copy_tree
-from time import sleep
 from unittest import TestCase
 
 import requests
@@ -11,7 +9,6 @@ from syncer import sync
 from browser.API_Browser import API_Browser
 from utils.Dev import Dev
 from utils.Files import Files
-from utils.Process import Process
 from utils.aws.Lambdas import Lambdas
 
 
@@ -22,12 +19,12 @@ class Test_lambda_create_map(TestCase):
         self.folder_src_hugo    = Files.path_combine(__file__, '../../../src/hugo')
 
     def zip_update_invoke(self):
-
         _lambda = Lambdas('create_map', 'create_map.run')
         copy_tree(_lambda.source         , self.src_tmp)
         copy_tree(self.folder_src_lambdas, self.src_tmp)
         _lambda.source = self.src_tmp
         return _lambda.update().invoke()
+
 
     def copy_html_files(self):
         html_file = self.folder_src_hugo + '/layouts/visjs/simple.html'
