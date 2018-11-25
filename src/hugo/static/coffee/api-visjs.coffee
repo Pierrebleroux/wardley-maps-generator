@@ -1,16 +1,17 @@
 class Canvas_Draw
-  constructor: (context) ->
-    @.ctx = context
+  constructor: (context,options) ->
+    @.ctx  = context
+    @.default_font = options?.font || 'Arial'
 
   arrow: (x1, y1, x2, y2)=>
-    rot = -Math.atan2(x1 - x2, y1 - y2);
     @.ctx.beginPath();
     @.ctx.moveTo(x1, y1);
     @.ctx.lineTo(x2, y2);
     @.ctx.stroke();         # draw arrow line
 
+    rot = -Math.atan2(x1 - x2, y1 - y2) +  Math.PI;
     @.ctx.save();             # draw arrow head
-    @.ctx.translate(x1, y1);
+    @.ctx.translate(x2, y2);
     @.ctx.rotate(rot);
     @.ctx.beginPath();
     @.ctx.moveTo(0, 0);
@@ -20,18 +21,6 @@ class Canvas_Draw
     @.ctx.fill();
     @.ctx.restore();
 
-  circle: (x, y, r)=>
-    @.ctx.strokeStyle = '#294475';
-    @.ctx.lineWidth   = 40;
-    @.ctx.fillStyle   = '#A6D5F7';
-    @.ctx.circle(x,y,r)
-    @.ctx.fill();
-    @.ctx.stroke();
-
-  rectangle: (from_x, from_y, to_x, to_y )=>
-    @.ctx.rect(from_x, from_y, to_x, to_y);
-    @.ctx.stroke();
-
   box: (x, y, w, h, r)=>
     if (w < 2 * r)
       r = w / 2
@@ -39,7 +28,6 @@ class Canvas_Draw
       r = h / 2
     @.ctx.beginPath();
     @.ctx.lineWidth = "3";
-    @.ctx.strokeStyle = "darkred";
     @.ctx.moveTo(x+r, y);
     @.ctx.arcTo(x+w, y,   x+w, y+h, r);
     @.ctx.arcTo(x+w, y+h, x,   y+h, r);
@@ -47,11 +35,62 @@ class Canvas_Draw
     @.ctx.arcTo(x,   y,   x+w, y,   r);
     @.ctx.closePath();
     @.ctx.stroke();
+    @
+
+
+  circle: (x, y, r)=>
+    @.ctx.strokeStyle = '#294475';
+    @.ctx.lineWidth   = 40;
+    @.ctx.fillStyle   = '#A6D5F7';
+    @.ctx.circle(x,y,r)
+    @.ctx.fill();
+    @.ctx.stroke();
+    @
+
+  color: (color)=>
+    @.ctx.strokeStyle = color
+    @.ctx.fillStyle   = color
+    @
+
+  font: (font_size, font_type)=>
+    @.ctx.font   = "#{font_size || 14}px #{font_type || @.default_font }";
+    @
+
+  gradient: (x1, y1, x2, y2, color_from, color_to)=>
+    grd= @.ctx.createLinearGradient(x1, y1, x2, y2);
+    grd.addColorStop(0,color_from);
+    grd.addColorStop(1,color_to );
+    @.ctx.fillStyle=grd;
+    @
+
+  line: (x1, y1, x2, y2)=>
+    @.ctx.beginPath();
+    @.ctx.moveTo(x1, y1);
+    @.ctx.lineTo(x2, y2);
+    @.ctx.stroke();
+    @
+
+  line_dash: (length)=>
+    @.ctx.setLineDash([length,length])
+    @
+
+  rectangle: (from_x, from_y, to_x, to_y )=>
+    @.ctx.rect(from_x, from_y, to_x, to_y);
+    @.ctx.stroke()
+    @
+
+  rectangle_fill: (x1, y1, x2, y2 )=>
+    @.ctx.fillRect(x1, y1, x2, y2)
+    @.ctx.stroke()
+    @
 
   text: (value, x, y)=>
-    @.ctx.font      = "25px Arial";
-    @.ctx.fillStyle = "darkred";
     @.ctx.fillText(value, x, y);
+    @
+
+  text_align: (value)=>
+    @.ctx.textAlign = value
+    @
 
   text_vertical: (value, x, y)=>
     @.ctx.save();
@@ -60,9 +99,6 @@ class Canvas_Draw
     #@.ctx.textAlign = "center";
     @.ctx.fillText(value, 0, -20);
     @.ctx.restore();
-
-  font: (font_size, font_type)=>
-    @.ctx.font   = "#{font_size || 14}px Arial";
     @
 
 class Api_VisJs
@@ -70,14 +106,16 @@ class Api_VisJs
     @._canvas_border    = 50
     @.hide_anchor_edges = true
     @.connection_arrows = '' #'to'
-    @.row_count         = 4
+
+    @.rows              = ["Genesis","Custom","Product (+ Rental)","Commodity (+ Utility)"]
+    @.row_count         = @.rows.length
 
   add_node       : (node    ) -> network.body.data.nodes.add(node)
   add_edge       : (edge    ) -> network.body.data.edges.add(edge)
   canvas_border  : (        ) -> @._canvas_border
   canvas_height  : (        ) -> network.canvas.frame.clientHeight
   canvas_width   :  (        ) -> network.canvas.frame.clientWidth
-  draw           : (        ) => new Canvas_Draw(@.context())
+  draw           : (        ) => new Canvas_Draw(@.context(), { font: 'Courier'})
   context        : (        ) => network.canvas.getContext()
   edges          : (        ) -> return network.body.data.edges._data
   nodes          : (        ) -> return network.body.data.nodes._data
@@ -103,20 +141,20 @@ class Api_VisJs
 
 
   #draw helpers (move to separate class)
-  draw_circle: (x, y, r)=>
-    ctx = @.context()
-    ctx.strokeStyle = '#294475';
-    ctx.lineWidth   = 4;
-    ctx.fillStyle   = '#A6D5F7';
-    ctx.circle(x,y,r)
-    ctx.fill();
-    ctx.stroke();
+#  draw_circle: (x, y, r)=>
+#    ctx = @.context()
+#    ctx.strokeStyle = '#294475';
+#    ctx.lineWidth   = 4;
+#    ctx.fillStyle   = '#A6D5F7';
+#    ctx.circle(x,y,r)
+#    ctx.fill();
+#    ctx.stroke();
 
-  draw_rectangle: (from_x, from_y, to_x, to_y )=>
-    ctx = @.context()
-    ctx.rect(from_x, from_y, to_x, to_y);
-    ctx.stroke();
-  # Maps specific methods
+#  draw_rectangle: (from_x, from_y, to_x, to_y )=>
+#    ctx = @.context()
+#    ctx.rect(from_x, from_y, to_x, to_y);
+#    ctx.stroke();
+#  # Maps specific methods
 
   add_connection: (from, to,length)->
     edge =
@@ -194,15 +232,41 @@ class Api_VisJs
                 #mass   : 0.1            # repulsion of the the anchor nodes
         api_visjs.add_node node
 
-  draw_static_elements: ()=>
-      #@.draw().rectangle(0 ,0 , @.canvas_width() - @.canvas_border() * 2 , @.canvas_height() - @.canvas_border() * 2)
-      @.draw().arrow(0,0,0,@.canvas_height() - @.canvas_border() * 2 )
-      @.draw().arrow(@.canvas_width() - @.canvas_border() * 2 , @.canvas_height() - @.canvas_border() * 2, 0,@.canvas_height() - @.canvas_border() * 2)
-      @.draw().font(20).text_vertical("Value Chain", 0, @.canvas_height() / 2 )
-      @.draw().font(14).text_vertical("Visible"    , 0, @.canvas_height() / 8 )
-      @.draw().font(14).text_vertical("Invisible"  , 0, @.canvas_height() / 1.3  )
 
-      @.on_AfterDrawing?()      # callback event to allow the script to add more elements to the canvas (that will be redrawn every time)
+  draw_static_elements: ()=>
+    width  = @.canvas_width() - @.canvas_border() *2
+    height = @.canvas_height() - @.canvas_border() * 2
+
+    @.draw().gradient(0     , 0, width / 4          ,0 , "#E0E0E0", "#FFFFFF").rectangle_fill(0         , 0, width / 2 , height)
+            .gradient(width , 0, width - width / 4  ,0 , "#E0E0E0", "#FFFFFF").rectangle_fill(width / 2 , 0, width / 2 , height)
+            .color('black')
+
+    #@.draw().rectangle(0 ,0 , @.canvas_width() - @.canvas_border() * 2 , @.canvas_height() - @.canvas_border() * 2)
+    @.draw().arrow(0 ,height,0, 0)
+    @.draw().arrow(0, height, width, height)
+    @.draw().font(20).text_vertical("Value Chain", 0, @.canvas_height() / 2 )
+    @.draw().font(14).text_vertical("Visible"    , 0, @.canvas_height() / 8 )
+    @.draw().font(14).text_vertical("Invisible"  , 0, @.canvas_height() / 1.3  )
+
+
+
+    # add the bottom legend
+    x_delta = [0,-60, -80, -60,0]
+    x_start = width / @.row_count
+    @.draw().text_align("left").font('Italic 13','Courier')
+    for i in [0..(@.row_count - 1)]
+      x = i *  x_start  + x_delta[i]
+      @.draw().text(@.rows[i], x  + 10 , height + 20)
+      if i > 0
+        @.draw().line_dash(2).line(x, 20 ,x ,height + 20).line_dash(0)
+
+
+    # end of Maps static ui
+    @.on_AfterDrawing?()      # callback event to allow the script to add more elements to the canvas (that will be redrawn every time)
+
+
+
+
 
   move_canvas: ()=>
     @.move_to(0,0, - @.canvas_width() / 2 + @.canvas_border(), - @.canvas_height() / 2 + @.canvas_border() , 1.0)
@@ -211,7 +275,8 @@ class Api_VisJs
     @.move_canvas()
     @.set_Options()
     @.add_top_and_bottom_anchor_nodes()
-    network.on "afterDrawing",  () => @.draw_static_elements() # setup hook to add static elements to UI after each drawing event
+    network.on "beforeDrawing",  () => @.draw_static_elements() # setup hook to add static elements to UI after each drawing event
+    #network.on "afterDrawing",  () =>()
     #network.on 'startStabilizing', (data)=>
     #network.on 'stabilized', (data)=>
 

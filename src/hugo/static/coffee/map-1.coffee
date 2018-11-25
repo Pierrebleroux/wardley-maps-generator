@@ -3,6 +3,7 @@
 class Maps extends window.Api_VisJs
 
   create_map_for_tea: ()->
+
     @.add_component('Business'   , 3, 1)
     @.add_component('Public'     , 3, 1)
     @.add_component('Cup of Tea' , 3, 2)
@@ -26,8 +27,8 @@ class Maps extends window.Api_VisJs
     @.node_fixed_x_y('Public'  , 450,50)
 
     @.on_AfterDrawing = ()=>
-      @.draw().box(300,30,200,70,20)
-      @.draw().text("Anchor", 190,50)
+      @.draw().color("darkred").box(300,30,200,70,20)
+      @.draw().font(20).text("Anchor", 190,70)
 
 
 
