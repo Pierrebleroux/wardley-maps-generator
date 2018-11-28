@@ -1,7 +1,10 @@
 import base64
+import json
 import subprocess
+import urllib
 from distutils.dir_util import copy_tree
 from unittest import TestCase
+from urllib.parse import urlencode
 
 import requests
 from syncer import sync
@@ -21,7 +24,7 @@ class Test_lambda_create_map(TestCase):
 
     def zip_update_invoke(self, payload = {}):
         self.copy_html_files()
-        _lambda = Lambdas('create_map', 'create_map.run',memory = 3008).delete().create()
+        _lambda = Lambdas('create_map', 'create_map.run',memory = 3008)
         copy_tree(_lambda.source         , self.src_tmp)
         copy_tree(self.folder_src_lambdas, self.src_tmp)
         _lambda.source = self.src_tmp
@@ -45,7 +48,7 @@ class Test_lambda_create_map(TestCase):
 
 
     def save_image(self, result, png_file):
-        png_data = result.get('base64_data')
+        png_data = result.get('body')
         if (png_data):
             with open(png_file, "wb") as fh:
                 fh.write(base64.decodebytes(png_data.encode()))
@@ -54,19 +57,23 @@ class Test_lambda_create_map(TestCase):
             Dev.pprint(result)
 
     def test_invoke(self):
-        #result = self.zip_update_invoke()
-        result = self.just_invoke()
+        result = self.zip_update_invoke()
+        #result = self.just_invoke({})
+
+        #Dev.pprint(result)
+        #return
+
         #Show_Img.from_png_string(result['base64_data'])
-        pdf_data = result['base64_data']
+        pdf_data = result['body']
         # Dev.pprint(len(pdf_data))
-        with open('./lambda-result.pdf', "wb") as fh:
+        with open('./lambda-result.png', "wb") as fh:
             fh.write(base64.decodebytes(pdf_data.encode()))
 
     def test_invoke_using_map_as_param(self):
         cs_map_2 = self.folder_src_hugo + '/static/coffee/map-2.coffee'
         payload = { 'coffee_script_code' : Files.contents(cs_map_2) }
-        #result  = self.zip_update_invoke(payload)
-        result = self.just_invoke(payload)
+        result  = self.zip_update_invoke(payload)
+        #result = self.just_invoke(payload)
 
         self.save_image(result, './lambda-result.png')
 
@@ -86,3 +93,48 @@ class Test_lambda_create_map(TestCase):
         html =  requests.get('http://localhost:1234/map/').text
         proc.kill()
         Dev.pprint(html)
+
+
+    def test_api_gw_create_map(self):
+
+
+
+        code = """
+class Maps extends window.Api_VisJs
+        
+    
+    extra_options:()=>        
+        @.connection_arrows = 'to'
+        @.hide_anchor_edges = false
+        @.rows              = ['A', 'B', 'C', 'D']
+        @
+        
+    create_map: ()=>
+        @.add_component('business'   , 3, 1)
+        @.add_component('test'       , 1, 4)
+        @.add_component('cloud'      , 4, 6)
+        
+        @.add_connection('business', 'test')
+        @.add_connection('business', 'cloud')
+        @
+        
+        
+        
+        
+new Maps().setup()
+          .extra_options()
+          .create_map()      
+        """
+
+        result = self.zip_update_invoke()
+        url = 'https://kweivkbzk3.execute-api.eu-west-2.amazonaws.com/prod/create-map?code={0}'.format(urllib.parse.quote(code))
+        response = requests.get(url)
+
+        #result = json.loads(response.text)
+
+        with open('/tmp/api_gw_create_map.png', "wb") as fh:
+            fh.write(response.content)
+        #Dev.pprint(response)
+
+        #with open("/tmp/api_gw_create_map.png", 'wb') as f:
+        #    f.write(response.content.get('body'))

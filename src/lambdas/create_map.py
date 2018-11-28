@@ -1,10 +1,13 @@
 import asyncio
 import base64
+import json
 import os
 import subprocess
+import urllib
 from distutils.dir_util import copy_tree
 from time import sleep
 
+from utils.Dev import Dev
 from utils.Files import Files
 from utils.Process import Process
 from utils.aws.Lambdas import load_dependency
@@ -37,9 +40,11 @@ def open_browser_and_take_screenshot():
     asyncio.get_event_loop().run_until_complete(take_screenshot())
 
 def get_file_data():
+    return base64.b64encode(open(path_page_screenshot, 'rb').read()).decode()
     with open(path_page_screenshot, "rb") as image_file:                                    # open path_page_screenshot file
         encoded_png =  base64.b64encode(image_file.read()).decode()                         # save it as a png string (base64 encoded to make it easier to return)
-    return { "base64_data" : encoded_png}                                                   # return value to Lambda caller
+    return encoded_png
+    #return { "base64_data" : encoded_png}                                                   # return value to Lambda caller
 
 def get_page_html():
     load_dependency('requests')   ; import requests
@@ -48,23 +53,39 @@ def get_page_html():
 def setup_tmp_web_root(payload):
     copy_tree('./html', web_root)
     cs_map_1 = web_root + '/coffee/map-1.coffee'
-    cs_code = payload['coffee_script_code']
-    Files.write(cs_map_1, cs_code)
+    if payload.get('coffee_script_code'):
+        cs_code = payload.get('coffee_script_code')
+        Files.write(cs_map_1, cs_code)
+
+    if payload.get("queryStringParameters") and payload.get("queryStringParameters").get('code'):
+        cs_code = payload.get("queryStringParameters").get('code')
+        Files.write(cs_map_1, cs_code)
     return Files.contents(cs_map_1)
 
 def run(event, context):
+
     setup_tmp_web_root(event)
+    print('---------')
+    Dev.pprint(event.get('queryStringParameters').get('code'))
+    #Dev.pprint(urllib.parse.unquote(event.get('queryStringParameters')))
+
 
     proc = subprocess.Popen(["python", "-m", "http.server", "1234"], cwd=web_root, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    sleep(0.5)
-
-    #html = get_page_html()
     open_browser_and_take_screenshot()
-
     proc.kill()
 
-    return get_file_data()
+    base64_data = get_file_data()
+
+    return  {   'isBase64Encoded': True,
+                'statusCode'     : 200,
+                'headers'        : {'Content-Type': 'image/png'},
+                'body'           : base64_data } #base64_encoded_binary_data}
+    return {
+        'statusCode': 200,
+        'body': base64_data
+    }
+
+
 
 
     #return html

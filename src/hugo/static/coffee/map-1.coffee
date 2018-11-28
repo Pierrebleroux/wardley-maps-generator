@@ -44,7 +44,7 @@ class Maps extends window.Api_VisJs
       @.draw().font(35).text("ANCHOR", 350,55)
 
       #@.draw().font(35).text("Created in Lambda!!!!", 450,255)
-
+    return @
 
   create_map_test_nodes: ()->
     @.add_component('A (1,1)' , 1 ,1)
