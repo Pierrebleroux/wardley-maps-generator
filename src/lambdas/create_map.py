@@ -66,7 +66,7 @@ def run(event, context):
 
     setup_tmp_web_root(event)
     print('---------')
-    Dev.pprint(event.get('queryStringParameters').get('code'))
+    #Dev.pprint(event.get('queryStringParameters').get('code'))
     #Dev.pprint(urllib.parse.unquote(event.get('queryStringParameters')))
 
 

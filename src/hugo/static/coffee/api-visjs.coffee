@@ -245,9 +245,11 @@ class Api_VisJs
     #@.draw().rectangle(0 ,0 , @.canvas_width() - @.canvas_border() * 2 , @.canvas_height() - @.canvas_border() * 2)
     @.draw().arrow(0 ,height,0, 0)
     @.draw().arrow(0, height, width, height)
-    @.draw().font(20).text_vertical("Value Chain", 0, @.canvas_height() / 2 )
-    @.draw().font(14).text_vertical("Visible"    , 0, @.canvas_height() / 8 )
-    @.draw().font(14).text_vertical("Invisible"  , 0, @.canvas_height() / 1.3  )
+
+    if (true)
+      @.draw().font(20).text_vertical("Value Chain", 0, @.canvas_height() / 2 )
+      @.draw().font(14).text_vertical("Visible"    , 0, @.canvas_height() / 8 )
+      @.draw().font(14).text_vertical("Invisible"  , 0, @.canvas_height() / 1.3  )
 
 
 
@@ -261,8 +263,10 @@ class Api_VisJs
       if i > 0
         @.draw().line_dash(2).line(x, 20 ,x ,height + 20).line_dash(0)
 
-    @.draw().font('Bold 13').text_align("left").text("Uncharted"     , 10         ,20)
-    @.draw().font('Bold 13').text_align("right").text("Industrialised", width - 10,20)
+    if (true)
+      @.draw().font('Bold 13').text_align("left").text("Uncharted"     , 10         ,20)
+      @.draw().font('Bold 13').text_align("right").text("Industrialised", width - 10,20)
+
     # end of Maps static ui
     @.on_AfterDrawing?()      # callback event to allow the script to add more elements to the canvas (that will be redrawn every time)
 
